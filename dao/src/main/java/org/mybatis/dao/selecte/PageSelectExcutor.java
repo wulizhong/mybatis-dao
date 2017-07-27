@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.mybatis.dao.Condation;
+import org.mybatis.dao.DataBase;
 import org.mybatis.dao.TableMap;
 import org.mybatis.dao.condation.Limit;
 import org.mybatis.dao.database.Table;
@@ -26,7 +27,7 @@ public class PageSelectExcutor extends SelectExcutor {
 	@Override
 	public <T> List<T> select(SelectContext context) {
 		// TODO Auto-generated method stub
-		if (page != null) {
+		if (page != null&&context.getDaoConfig().getDataBase() == DataBase.MYSQL) {
 			HashMap<String, Object> paramter = new HashMap<String, Object>();
 			Table table = TableMap.getInstance().getTableMap(context.getType());
 			Condation cnd = context.getCondation();
@@ -40,8 +41,25 @@ public class PageSelectExcutor extends SelectExcutor {
 			page.setDaoMapper(context.getDaoMapper());
 			page.setParamter(paramter);
 			page.setSql(sqlBuilder.toString());
-			context.setCondation(new Limit(context.getCondation(), context.getDaoConfig().getDataBase(), page.getPageNumber(), page.getPageSize()));
+			
+		}else if (page != null&&context.getDaoConfig().getDataBase() == DataBase.ORACLE){
+			HashMap<String, Object> paramter = new HashMap<String, Object>();
+			Table table = TableMap.getInstance().getTableMap(context.getType());
+			Condation cnd = context.getCondation();
+			StringBuilder sqlBuilder = new StringBuilder();
+			sqlBuilder.append("select ");
+			sqlBuilder.append(table.getId().getId());
+			sqlBuilder.append(" from ");
+			sqlBuilder.append(table.getName());
+			if (cnd != null)
+				sqlBuilder.append(cnd.toSql(context.getType(), paramter));
+			page.setDaoMapper(context.getDaoMapper());
+			page.setParamter(paramter);
+			page.setSql(sqlBuilder.toString());
+			
+			
 		}
+		context.setCondation(new Limit(context.getCondation(), context.getDaoConfig().getDataBase(), (page.getPageNumber()*page.getPageSize()), (page.getPageNumber()*page.getPageSize())+page.getPageSize()));
 		return selectExcutor.select(context);
 	}
 }

@@ -12,6 +12,7 @@ public class Id{
 	private String id;
 	private Field field;
 	private boolean autoGenerateId = true;
+	private String sequence;
 	public String getId() {
 		return id;
 	}
@@ -29,6 +30,12 @@ public class Id{
 	}
 	public void setAutoGenerateId(boolean autoGenerateId) {
 		this.autoGenerateId = autoGenerateId;
+	}
+	public String getSequence() {
+		return sequence;
+	}
+	public void setSequence(String sequence) {
+		this.sequence = sequence;
 	}
 	
 }

@@ -76,7 +76,31 @@ public class Toolkit {
 
 			field.setAccessible(true);
 			try {
-				field.set(obj, entry.getValue());
+				
+				Object value = entry.getValue();
+				
+				Class<?> fieldType = field.getType();
+				
+				if((value instanceof BigDecimal&&fieldType!=BigDecimal.class)||(value instanceof BigInteger &&fieldType!=BigInteger.class)){
+					
+					if(fieldType == Long.class || fieldType == long.class){
+						field.set(obj, Long.parseLong(value.toString()));
+					}else if(fieldType == Integer.class || fieldType == int.class){
+						field.set(obj, Integer.parseInt(value.toString()));
+					}else if(fieldType == Short.class || fieldType == short.class){
+						field.set(obj, Short.parseShort(value.toString()));
+					}else if(fieldType == Byte.class || fieldType == byte.class){
+						field.set(obj, Byte.parseByte(value.toString()));
+					}else if(fieldType == Double.class || fieldType == double.class){
+						field.set(obj, Double.parseDouble(value.toString()));
+					}else if(fieldType == Float.class || fieldType == float.class){
+						field.set(obj, Float.parseFloat(value.toString()));
+					}
+					
+				}else{
+					field.set(obj, entry.getValue());
+				}
+				
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

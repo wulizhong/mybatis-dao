@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.mybatis.dao.annotation.Column;
 import org.mybatis.dao.annotation.Ignore;
+import org.mybatis.dao.annotation.Seq;
 import org.mybatis.dao.database.Id;
 import org.mybatis.dao.database.Many;
 import org.mybatis.dao.database.ManyToMany;
@@ -71,12 +72,17 @@ public class TableMap {
 			}
 			
 			org.mybatis.dao.annotation.Id id = f.getAnnotation(org.mybatis.dao.annotation.Id.class);
+			
 			if (id == null) {
 				if ("id".equals(f.getName().toLowerCase())) {
+					Seq seq = f.getAnnotation(Seq.class);
 					Id recordId = new Id();
 					recordId.setId("id");
 					recordId.setField(f);
 					recordId.setAutoGenerateId(f.getType() != String.class);
+					if(seq!=null){
+						recordId.setSequence(seq.value());
+					}
 					table.setId(recordId);
 
 					table.putDataBaseField(f, "id");
@@ -89,9 +95,14 @@ public class TableMap {
 				if (StringUtils.isEmpty(idStr)) {
 					idStr = underline ? StringUtils.humpToUnderline(f.getName()) : f.getName();
 				}
+				Seq seq = f.getAnnotation(Seq.class);
+				
 				Id recordId = new Id();
 				recordId.setId(idStr);
 				recordId.setField(f);
+				if(seq!=null){
+					recordId.setSequence(seq.value());
+				}
 				recordId.setAutoGenerateId(id.autoGenerateId());
 				table.setId(recordId);
 

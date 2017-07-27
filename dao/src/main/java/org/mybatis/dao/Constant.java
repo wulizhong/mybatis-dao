@@ -8,4 +8,6 @@ package org.mybatis.dao;
 public class Constant {
 
 	public static final String SQL_SYMBOL = "~!@#$%^&*_SQL";
+	
+	public static final String ORACLE_SQL_SYMBOL = "~!@#$%^&*ORACLE_SQL";
 }

@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.mybatis.dao.Constant;
+import org.mybatis.dao.DataBase;
 import org.mybatis.dao.TableMap;
+import org.mybatis.dao.condation.Limit;
 import org.mybatis.dao.database.Table;
 import org.mybatis.dao.util.Toolkit;
 
@@ -23,9 +25,18 @@ public class SelectExcutor {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * from ");
 		sql.append(table.getName());
-		if (context.getCondation() != null)
+		if (context.getCondation() != null&&!(context.getCondation() instanceof Limit)){
 			sql.append(context.getCondation().toSql(context.getType(), paramter));
-		paramter.put(Constant.SQL_SYMBOL, sql.toString());
+			paramter.put(Constant.SQL_SYMBOL, sql.toString());
+		}else if(context.getCondation() != null&&context.getDaoConfig().getDataBase() == DataBase.MYSQL&&context.getCondation() instanceof Limit){
+			sql.append(context.getCondation().toSql(context.getType(), paramter));
+			paramter.put(Constant.SQL_SYMBOL, sql.toString());
+		}else if(context.getCondation() != null&&context.getDaoConfig().getDataBase() == DataBase.ORACLE&&context.getCondation() instanceof Limit){
+			String pageSql = context.getCondation().toSql(context.getType(), paramter);
+			pageSql = pageSql.replace(Constant.ORACLE_SQL_SYMBOL, sql.toString());
+			paramter.put(Constant.SQL_SYMBOL, pageSql.toString());
+		}
+		
 		List<Map<String, Object>> mapResultList = context.getDaoMapper().select(paramter);
 		@SuppressWarnings("unchecked")
 		List<T> result = (List<T>) Toolkit.convertMapToObjectList(context.getType(), mapResultList, context.getObjectCreator());

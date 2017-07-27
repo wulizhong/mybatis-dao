@@ -10,5 +10,4 @@ import java.util.Map;
  */
 public interface Condation {
 	public String toSql(Class<?> clazz,Map<String,Object> paramter);
-	
 }

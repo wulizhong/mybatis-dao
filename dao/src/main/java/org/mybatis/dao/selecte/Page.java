@@ -63,8 +63,9 @@ public class Page {
 			paramter.put(Constant.SQL_SYMBOL, sql);
 			List<Map<String, Object>> result = daoMapper.select(paramter);
 			if(!CollectionUtils.isEmpty(result)){
-				Map<String, Object> countMap = result.get(0);
-				totalCount =  (Long)countMap.get("count(*)");
+//				Map<String, Object> countMap = result.get(0);
+				
+				totalCount =  Long.parseLong(result.get(0).values().toArray()[0].toString());
 			}
 		}
 		return totalCount;
