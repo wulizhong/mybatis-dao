@@ -2,6 +2,7 @@ package org.mybatis.dao.samples.bean;
 
 import org.mybatis.dao.FetchType;
 import org.mybatis.dao.annotation.One;
+import org.mybatis.dao.annotation.Table;
 
 /** 
  * @author 作者 :吴立中
@@ -9,6 +10,7 @@ import org.mybatis.dao.annotation.One;
  * @date	创建时间：2016年7月13日 下午1:26:53 
  * 
  */
+@Table("t_blog")
 public class Blog {
 
 	private int id;

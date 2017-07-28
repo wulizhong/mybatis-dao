@@ -18,6 +18,7 @@ import org.mybatis.dao.selecte.PageSelectExcutor;
 import org.mybatis.dao.selecte.RelationSelectExcutor;
 import org.mybatis.dao.selecte.SelectContext;
 import org.mybatis.dao.selecte.SelectExcutor;
+import org.mybatis.dao.update.FieldFilterUpdateExcutor;
 import org.mybatis.dao.update.UpdateContext;
 import org.mybatis.dao.update.UpdateExcutor;
 import org.mybatis.dao.util.CollectionUtils;
@@ -58,6 +59,29 @@ public class Dao {
 
 		UpdateExcutor updateExcutor = new UpdateExcutor();
 
+		return updateExcutor.update(updateContext);
+
+	}
+	
+	public <T> int update(T t,FieldFilter filter) {
+
+		Class<?> targetType = Toolkit.isCglibProxy(t) ? t.getClass().getSuperclass() : t.getClass();
+
+		Table table = TableMap.getInstance().getTableMap(targetType);
+
+		Object id = ReflectionUtils.getValue(t, table.getId().getField());
+		if (id == null) {
+			throw new IdIsNullException(targetType.getName() + " Id is null");
+		}
+
+		Condation cnd = Cnd.where(table.getId().getId(), "=", id);
+
+		UpdateContext updateContext = new UpdateContext(t, daoConfig, daoMapper);
+
+		updateContext.setCondation(cnd);
+
+		UpdateExcutor updateExcutor = new UpdateExcutor();
+		updateExcutor = new FieldFilterUpdateExcutor(filter,updateExcutor);
 		return updateExcutor.update(updateContext);
 
 	}

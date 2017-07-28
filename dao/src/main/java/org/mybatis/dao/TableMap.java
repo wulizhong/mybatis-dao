@@ -55,7 +55,7 @@ public class TableMap {
 		org.mybatis.dao.annotation.Table tableAnnotation = clazz.getAnnotation(org.mybatis.dao.annotation.Table.class);
 		String tableName;
 		if (tableAnnotation != null) {
-			if (StringUtils.isEmpty(tableAnnotation.value())) {
+			if (!StringUtils.isEmpty(tableAnnotation.value())) {
 				tableName = tableAnnotation.value();
 			} else {
 				tableName = underline ? StringUtils.humpToUnderline(clazz.getSimpleName()) : clazz.getSimpleName();

@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Primary;
 @MapperScan("org.mybatis.dao.mapper")
 public class MybatisDaoConfig {
 	
-	
 	@Bean(name = "dao")
     @Primary
     public Dao dao(@Qualifier("daoMapper")DaoMapper daoMapper) throws Exception {

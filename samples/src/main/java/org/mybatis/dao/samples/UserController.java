@@ -30,9 +30,11 @@ public class UserController {
 	@RequestMapping("/updateBlog")
 	public Blog updateBlog() {
 
-		Blog b = dao.find(Blog.class, 1);
-		b.setContent("修改之后的内容!");
-		dao.update(b);
+		Blog b = dao.find(Blog.class, 5);
+		b.setContent("修改之后的内容3!");
+		b.setTitle("修改测试");
+		b.setAuthorId(5);
+		dao.update(b,FieldFilter.exclude("title","content"));
 		return b;
 	}
 
