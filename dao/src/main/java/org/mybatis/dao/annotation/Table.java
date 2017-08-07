@@ -17,5 +17,5 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Table {
 
-	String value();
+	String value() default "";
 }

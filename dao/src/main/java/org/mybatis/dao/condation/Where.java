@@ -58,5 +58,13 @@ public class Where implements Condation{
 		return or;
 	}
 	
+	public OrderBy orderBy(String name,String value){
+		OrderBy ob = new OrderBy(this,name,value);
+		return ob;
+	}
 	
+	public OrderBy orderBy(String name){
+		OrderBy ob = new OrderBy(this,name,Cnd.ASC);
+		return ob;
+	}
 }

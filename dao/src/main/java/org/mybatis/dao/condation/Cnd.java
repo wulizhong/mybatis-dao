@@ -13,7 +13,21 @@ public class Cnd {
 	
 	public final static String LIKE = "like";
 	
+	public final static String DESC = " desc ";
+	
+	public final static String ASC = " asc ";
+	
 	public static Where where(String name,String op,Object value){
 		return new Where(name, op, value);
+	}
+	
+	public OrderBy orderBy(String name,String value){
+		OrderBy ob = new OrderBy(name,value);
+		return ob;
+	}
+	
+	public OrderBy orderBy(String name){
+		OrderBy ob = new OrderBy(name,ASC);
+		return ob;
 	}
 }

@@ -10,7 +10,7 @@ import org.mybatis.dao.annotation.Table;
  * @date	创建时间：2016年7月13日 下午1:26:53 
  * 
  */
-@Table("t_blog")
+@Table
 public class Blog {
 
 	private int id;

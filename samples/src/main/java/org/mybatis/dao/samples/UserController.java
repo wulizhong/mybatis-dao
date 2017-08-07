@@ -40,7 +40,7 @@ public class UserController {
 
 	@RequestMapping("/selectBlogs")
 	public List<Blog> selectBlogs() {
-		return dao.selectList(Blog.class, FieldFilter.include("title", "author", "authorId"), Cnd.where("id", ">", 6), new Page(1, 3));
+		return dao.selectList(Blog.class, FieldFilter.include("title", "author", "authorId"), Cnd.where("id", ">", 1).and("authorId", ">", 3).and("authorId", "<", 5), new Page(0, 9));
 	}
 
 	@RequestMapping("/queryBlogs")

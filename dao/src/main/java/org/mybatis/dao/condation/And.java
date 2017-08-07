@@ -46,22 +46,21 @@ public class And implements Condation {
 	
 	public And and(String name,String op,Object value){
 		And and = new And(this,name,op,value);
-		condation = and;
 		return and;
 	}
 	
 	public Or or(String name,String op,Object value){
 		Or or = new Or(this,name,op,value);
-		condation = or;
 		return or;
 	}
 
-	public Condation getCondation() {
-		return condation;
+	public OrderBy orderBy(String name,String value){
+		OrderBy ob = new OrderBy(this,name,value);
+		return ob;
 	}
-
-	public void setCondation(Condation condation) {
-		this.condation = condation;
+	public OrderBy orderBy(String name){
+		OrderBy ob = new OrderBy(this,name,Cnd.ASC);
+		return ob;
 	}
 	
 }
