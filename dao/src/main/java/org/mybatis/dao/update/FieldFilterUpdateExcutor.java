@@ -44,7 +44,8 @@ public class FieldFilterUpdateExcutor extends UpdateExcutor{
 		Class<?> targetType = Toolkit.isCglibProxy(target) ? target.getClass().getSuperclass() : target.getClass();
 		Table table = TableMap.getInstance().getTableMap(targetType);
 		SQL sql = new SQL();
-		sql.UPDATE(table.getName());
+		sql.UPDATE(getTableName(context));
+		
 		HashMap<String, Object> paramter = new HashMap<>();
 		
 		if(CollectionUtils.isEmpty(fieldFilter.getExcludeFields())){
@@ -52,9 +53,6 @@ public class FieldFilterUpdateExcutor extends UpdateExcutor{
 			for(int i = 0;i<includeFields.size();i++){
 				Field field = table.getFieldByOriginalFieldName(includeFields.get(i))==null?table.getField(includeFields.get(i)):table.getFieldByOriginalFieldName(includeFields.get(i));
 				if(field!=null){
-//					sql.append(table.getDataBaseField(includeFields.get(i)));
-//					sql.append(" , ");
-					
 					sql = sql.SET(table.getDataBaseField(includeFields.get(i))+ " = #{" + field.getName() + "}");
 					Object value = ReflectionUtils.getValue(target, field);
 					paramter.put(field.getName(), value);
@@ -98,4 +96,11 @@ public class FieldFilterUpdateExcutor extends UpdateExcutor{
 		return count;
 	}
 
+	@Override
+	protected String getTableName(UpdateContext context) {
+		// TODO Auto-generated method stub
+		return excutor.getTableName(context);
+	}
+
+	
 }

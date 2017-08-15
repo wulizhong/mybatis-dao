@@ -19,12 +19,19 @@ import org.mybatis.dao.util.Toolkit;
  */
 public class SelectExcutor {
 
+	public SelectExcutor(){}
+	
+	private SelectExcutor excutor;
+	
+	public SelectExcutor(SelectExcutor excutor){
+		this.excutor = excutor;
+	}
+	
 	public <T> List<T> select(SelectContext context){
 		HashMap<String, Object> paramter = new HashMap<String, Object>();
-		Table table = TableMap.getInstance().getTableMap(context.getType());
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * from ");
-		sql.append(table.getName());
+		sql.append(getTableName(context));
 		if (context.getCondation() != null&&!(context.getCondation() instanceof Limit)){
 			sql.append(context.getCondation().toSql(context.getType(), paramter));
 			paramter.put(Constant.SQL_SYMBOL, sql.toString());
@@ -42,6 +49,12 @@ public class SelectExcutor {
 		List<T> result = (List<T>) Toolkit.convertMapToObjectList(context.getType(), mapResultList, context.getObjectCreator());
 		return result;
 	}
-	
+	protected String getTableName(SelectContext context) {
+		if(excutor!=null){
+			return excutor.getTableName(context);
+		}
+		Table table = TableMap.getInstance().getTableMap(context.getType());
+		return table.getName();
+	}
 	
 }

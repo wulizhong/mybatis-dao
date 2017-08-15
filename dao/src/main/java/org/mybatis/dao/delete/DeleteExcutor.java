@@ -20,12 +20,17 @@ public class DeleteExcutor {
 		int count = -1;
 		Object target = context.getTarget();
 		Class<?> targetType = Toolkit.isCglibProxy(target) ? target.getClass().getSuperclass() : target.getClass();
-		Table table = TableMap.getInstance().getTableMap(targetType);
 		SQL sql = new SQL();
-		sql.DELETE_FROM(table.getName());
+		sql.DELETE_FROM(getTableName(context));
 		HashMap<String, Object> paramter = new HashMap<>();
 		paramter.put(Constant.SQL_SYMBOL, context.getCondation() == null?sql.toString():sql.toString()+context.getCondation().toSql(targetType, paramter));
 		count = context.getDaoMapper().delete(paramter);
 		return count;
+	}
+	protected String getTableName(DeleteContext context) {
+		Object target = context.getTarget();
+		Class<?> targetType = Toolkit.isCglibProxy(target) ? target.getClass().getSuperclass() : target.getClass();
+		Table table = TableMap.getInstance().getTableMap(targetType);
+		return table.getName();
 	}
 }

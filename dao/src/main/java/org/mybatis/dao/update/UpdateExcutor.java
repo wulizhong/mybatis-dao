@@ -26,7 +26,7 @@ public class UpdateExcutor {
 		Table table = TableMap.getInstance().getTableMap(targetType);
 		SQL sql = new SQL();
 		
-		sql.UPDATE(table.getName());
+		sql.UPDATE(getTableName(context));
 		HashMap<String, Object> paramter = new HashMap<>();
 		for (String fieldStr : table.getDataBaseFieldMap().values()) {
 			Field field = table.getField(fieldStr);
@@ -43,5 +43,12 @@ public class UpdateExcutor {
 		count = context.getDaoMapper().update(paramter);
 		
 		return count;
+	}
+	
+	protected String getTableName(UpdateContext context) {
+		Object target = context.getTarget();
+		Class<?> targetType = Toolkit.isCglibProxy(target) ? target.getClass().getSuperclass() : target.getClass();
+		Table table = TableMap.getInstance().getTableMap(targetType);
+		return table.getName();
 	}
 }

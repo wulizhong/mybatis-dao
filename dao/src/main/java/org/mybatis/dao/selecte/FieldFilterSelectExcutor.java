@@ -22,9 +22,11 @@ import org.mybatis.dao.util.Toolkit;
 public class FieldFilterSelectExcutor extends SelectExcutor{
 
 	private FieldFilter fieldFilter;
+	private SelectExcutor selectExcutor;
 	
-	public FieldFilterSelectExcutor(FieldFilter fieldFilter){
+	public FieldFilterSelectExcutor(FieldFilter fieldFilter,SelectExcutor selectExcutor){
 		this.fieldFilter = fieldFilter;
+		this.selectExcutor = selectExcutor;
 	}
 	
 	public <T> List<T> select(SelectContext context){
@@ -78,7 +80,7 @@ public class FieldFilterSelectExcutor extends SelectExcutor{
 			sql.append(" from ");
 		}
 		
-		sql.append(table.getName());
+		sql.append(getTableName(context));
 		if (context.getCondation() != null&&!(context.getCondation() instanceof Limit)){
 			sql.append(context.getCondation().toSql(context.getType(), paramter));
 			paramter.put(Constant.SQL_SYMBOL, sql.toString());
@@ -98,5 +100,12 @@ public class FieldFilterSelectExcutor extends SelectExcutor{
 		List<T> result = (List<T>) Toolkit.convertMapToObjectList(context.getType(), mapResultList, context.getObjectCreator());
 		return result;
 	}
+
+	@Override
+	protected String getTableName(SelectContext context) {
+		// TODO Auto-generated method stub
+		return selectExcutor.getTableName(context);
+	}
+	
 	
 }

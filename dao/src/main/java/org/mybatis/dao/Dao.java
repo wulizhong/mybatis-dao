@@ -6,11 +6,14 @@ import org.mybatis.dao.condation.Cnd;
 import org.mybatis.dao.database.Table;
 import org.mybatis.dao.delete.DeleteContext;
 import org.mybatis.dao.delete.DeleteExcutor;
+import org.mybatis.dao.delete.DynamicTableNameDeleteExcutor;
 import org.mybatis.dao.exception.IdIsNullException;
+import org.mybatis.dao.insert.DynamicTableNameInsertExcutor;
 import org.mybatis.dao.insert.InsertContext;
 import org.mybatis.dao.insert.InsertExcutor;
 import org.mybatis.dao.insert.RelationInsertExcutor;
 import org.mybatis.dao.mapper.DaoMapper;
+import org.mybatis.dao.selecte.DynamicTableNameSelectExcutor;
 import org.mybatis.dao.selecte.FieldFilterRelationSelectExcutor;
 import org.mybatis.dao.selecte.FieldFilterSelectExcutor;
 import org.mybatis.dao.selecte.Page;
@@ -18,6 +21,7 @@ import org.mybatis.dao.selecte.PageSelectExcutor;
 import org.mybatis.dao.selecte.RelationSelectExcutor;
 import org.mybatis.dao.selecte.SelectContext;
 import org.mybatis.dao.selecte.SelectExcutor;
+import org.mybatis.dao.update.DynamicTableNameUpdateExcutor;
 import org.mybatis.dao.update.FieldFilterUpdateExcutor;
 import org.mybatis.dao.update.UpdateContext;
 import org.mybatis.dao.update.UpdateExcutor;
@@ -40,6 +44,12 @@ public class Dao {
 		this.daoConfig = daoConfig;
 	}
 
+	/**
+	 * 更新
+	 * int
+	 * @param t
+	 * @return
+	 */
 	public <T> int update(T t) {
 
 		Class<?> targetType = Toolkit.isCglibProxy(t) ? t.getClass().getSuperclass() : t.getClass();
@@ -58,6 +68,35 @@ public class Dao {
 		updateContext.setCondation(cnd);
 
 		UpdateExcutor updateExcutor = new UpdateExcutor();
+
+		return updateExcutor.update(updateContext);
+
+	}
+	/**
+	 * 更新动态表 对象的id必须在动态表当中，否则会更新失败
+	 * int
+	 * @param t
+	 * @param dynamicTableName
+	 * @return
+	 */
+	public <T> int update(T t,String dynamicTableName) {
+
+		Class<?> targetType = Toolkit.isCglibProxy(t) ? t.getClass().getSuperclass() : t.getClass();
+
+		Table table = TableMap.getInstance().getTableMap(targetType);
+
+		Object id = ReflectionUtils.getValue(t, table.getId().getField());
+		if (id == null) {
+			throw new IdIsNullException(targetType.getName() + " Id is null");
+		}
+
+		Condation cnd = Cnd.where(table.getId().getId(), "=", id);
+
+		UpdateContext updateContext = new UpdateContext(t, daoConfig, daoMapper);
+
+		updateContext.setCondation(cnd);
+
+		UpdateExcutor updateExcutor = new DynamicTableNameUpdateExcutor(dynamicTableName);
 
 		return updateExcutor.update(updateContext);
 
@@ -85,7 +124,51 @@ public class Dao {
 		return updateExcutor.update(updateContext);
 
 	}
+	
+	public <T> int update(T t,String dynamicTableName,FieldFilter filter) {
 
+		Class<?> targetType = Toolkit.isCglibProxy(t) ? t.getClass().getSuperclass() : t.getClass();
+
+		Table table = TableMap.getInstance().getTableMap(targetType);
+
+		Object id = ReflectionUtils.getValue(t, table.getId().getField());
+		if (id == null) {
+			throw new IdIsNullException(targetType.getName() + " Id is null");
+		}
+
+		Condation cnd = Cnd.where(table.getId().getId(), "=", id);
+
+		UpdateContext updateContext = new UpdateContext(t, daoConfig, daoMapper);
+
+		updateContext.setCondation(cnd);
+
+		UpdateExcutor updateExcutor = new DynamicTableNameUpdateExcutor(dynamicTableName);
+		updateExcutor = new FieldFilterUpdateExcutor(filter,updateExcutor);
+		return updateExcutor.update(updateContext);
+
+	}
+
+	public <T> int delete(T t,String dynamicTableName) {
+		Class<?> targetType = Toolkit.isCglibProxy(t) ? t.getClass().getSuperclass() : t.getClass();
+
+		Table table = TableMap.getInstance().getTableMap(targetType);
+
+		Object id = ReflectionUtils.getValue(t, table.getId().getField());
+		if (id == null) {
+			throw new IdIsNullException(targetType.getName() + " Id is null");
+		}
+
+		Condation cnd = Cnd.where(table.getId().getId(), "=", id);
+
+		DeleteContext deleteContext = new DeleteContext(t, daoConfig, daoMapper);
+
+		deleteContext.setCondation(cnd);
+
+		DeleteExcutor deleteExcutor = new DynamicTableNameDeleteExcutor(dynamicTableName);
+
+		return deleteExcutor.delete(deleteContext);
+	}
+	
 	public <T> int delete(T t) {
 		Class<?> targetType = Toolkit.isCglibProxy(t) ? t.getClass().getSuperclass() : t.getClass();
 
@@ -123,6 +206,23 @@ public class Dao {
 
 		return deleteExcutor.delete(deleteContext);
 	}
+	
+	public <T> int delete(Class<T> t,String dynamicTableName, Condation cnd) {
+
+		DeleteContext deleteContext = null;
+		try {
+			deleteContext = new DeleteContext(t.newInstance(), daoConfig, daoMapper);
+		} catch (InstantiationException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		deleteContext.setCondation(cnd);
+
+		DeleteExcutor deleteExcutor = new DynamicTableNameDeleteExcutor(dynamicTableName);
+
+		return deleteExcutor.delete(deleteContext);
+	}
 
 	public <T> int save(T t) {
 
@@ -138,6 +238,12 @@ public class Dao {
 	public <T> int insert(T t) {
 		InsertContext insertContext = new InsertContext(t, daoConfig, daoMapper);
 		InsertExcutor insert = new InsertExcutor();
+		return insert.insert(insertContext);
+	}
+	
+	public <T> int insert(T t,String dynamicTableName) {
+		InsertContext insertContext = new InsertContext(t, daoConfig, daoMapper);
+		InsertExcutor insert = new DynamicTableNameInsertExcutor(dynamicTableName);
 		return insert.insert(insertContext);
 	}
 
@@ -169,8 +275,9 @@ public class Dao {
 
 	public <T> T selectOne(Class<T> t, FieldFilter filter, Condation cnd) {
 		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
-		FieldFilterSelectExcutor select = new FieldFilterSelectExcutor(filter);
-		List<T> resultList = select.select(sc);
+		SelectExcutor selector = new SelectExcutor();
+		selector = new FieldFilterSelectExcutor(filter,selector);
+		List<T> resultList = selector.select(sc);
 		return CollectionUtils.isEmpty(resultList) ? null : resultList.get(0);
 	}
 
@@ -181,6 +288,37 @@ public class Dao {
 		return CollectionUtils.isEmpty(resultList) ? null : resultList.get(0);
 	}
 
+	
+	
+	public <T> T selectOne(Class<T> t,String dynamicTableName, long id) {
+		Table table = TableMap.getInstance().getTableMap(t);
+		Condation c = Cnd.where(table.getId().getId(), "=", id);
+		return selectOne(t,dynamicTableName, c);
+	}
+
+	public <T> T selectOne(Class<T> t,String dynamicTableName, FieldFilter filter, long id) {
+		Table table = TableMap.getInstance().getTableMap(t);
+		Condation c = Cnd.where(table.getId().getId(), "=", id);
+		return selectOne(t,dynamicTableName, filter, c);
+	}
+
+	public <T> T selectOne(Class<T> t,String dynamicTableName, FieldFilter filter, Condation cnd) {
+		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
+		SelectExcutor selector = new DynamicTableNameSelectExcutor(dynamicTableName);
+		selector = new FieldFilterSelectExcutor(filter,selector);
+		List<T> resultList = selector.select(sc);
+		return CollectionUtils.isEmpty(resultList) ? null : resultList.get(0);
+	}
+
+	public <T> T selectOne(Class<T> t,String dynamicTableName, Condation cnd) {
+		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
+		SelectExcutor selector = new DynamicTableNameSelectExcutor(dynamicTableName);
+		selector = new SelectExcutor(selector);
+		List<T> resultList = selector.select(sc);
+		return CollectionUtils.isEmpty(resultList) ? null : resultList.get(0);
+	}
+	
+	
 	public <T> List<T> selectList(Class<T> t, Condation cnd) {
 		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
 		SelectExcutor select = new SelectExcutor();
@@ -189,21 +327,24 @@ public class Dao {
 
 	public <T> List<T> selectList(Class<T> t, FieldFilter filter) {
 		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, null);
-		FieldFilterSelectExcutor select = new FieldFilterSelectExcutor(filter);
-		return select.select(sc);
+		SelectExcutor selector = new SelectExcutor();
+		selector = new FieldFilterSelectExcutor(filter,selector);
+		return selector.select(sc);
 	}
 
 	public <T> List<T> selectList(Class<T> t, FieldFilter filter, Condation cnd) {
 		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
-		FieldFilterSelectExcutor select = new FieldFilterSelectExcutor(filter);
-		return select.select(sc);
+		SelectExcutor selector = new SelectExcutor();
+		selector = new FieldFilterSelectExcutor(filter,selector);
+		return selector.select(sc);
 	}
 
 	public <T> List<T> selectList(Class<T> t, FieldFilter filter, Condation cnd, Page page) {
 		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
-		SelectExcutor select = new FieldFilterSelectExcutor(filter);
-		select = new PageSelectExcutor(select, page);
-		return select.select(sc);
+		SelectExcutor selector = new SelectExcutor();
+		selector = new FieldFilterSelectExcutor(filter,selector);
+		selector = new PageSelectExcutor(selector, page);
+		return selector.select(sc);
 	}
 
 	public <T> List<T> selectList(Class<T> t, Condation cnd, Page page) {
@@ -211,6 +352,47 @@ public class Dao {
 		SelectExcutor select = new SelectExcutor();
 		select = new PageSelectExcutor(select, page);
 		List<T> resultList = select.select(sc);
+		return resultList;
+	}
+	
+	public <T> List<T> selectList(Class<T> t,String dynamicTableName, Condation cnd) {
+		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
+		SelectExcutor selector = new DynamicTableNameSelectExcutor(dynamicTableName);
+		selector = new SelectExcutor(selector);
+		return selector.select(sc);
+	}
+
+	public <T> List<T> selectList(Class<T> t,String dynamicTableName, FieldFilter filter) {
+		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, null);
+		SelectExcutor selector = new DynamicTableNameSelectExcutor(dynamicTableName);
+		selector = new SelectExcutor(selector);
+		selector = new FieldFilterSelectExcutor(filter,selector);
+		return selector.select(sc);
+	}
+
+	public <T> List<T> selectList(Class<T> t,String dynamicTableName, FieldFilter filter, Condation cnd) {
+		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
+		SelectExcutor selector = new DynamicTableNameSelectExcutor(dynamicTableName);
+		selector = new SelectExcutor(selector);
+		selector = new FieldFilterSelectExcutor(filter,selector);
+		return selector.select(sc);
+	}
+
+	public <T> List<T> selectList(Class<T> t,String dynamicTableName, FieldFilter filter, Condation cnd, Page page) {
+		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
+		SelectExcutor selector = new DynamicTableNameSelectExcutor(dynamicTableName);
+		selector = new SelectExcutor(selector);
+		selector = new FieldFilterSelectExcutor(filter,selector);
+		selector = new PageSelectExcutor(selector, page);
+		return selector.select(sc);
+	}
+
+	public <T> List<T> selectList(Class<T> t,String dynamicTableName, Condation cnd, Page page) {
+		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
+		SelectExcutor selector = new DynamicTableNameSelectExcutor(dynamicTableName);
+		selector = new SelectExcutor(selector);
+		selector = new PageSelectExcutor(selector, page);
+		List<T> resultList = selector.select(sc);
 		return resultList;
 	}
 
@@ -231,24 +413,27 @@ public class Dao {
 
 	public <T> List<T> query(Class<T> t, FieldFilter filter) {
 		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, null);
-		SelectExcutor select = new FieldFilterSelectExcutor(filter);
-		select = new FieldFilterRelationSelectExcutor(select, filter);
-		return select.select(sc);
+		SelectExcutor selector = new SelectExcutor();
+		selector = new FieldFilterSelectExcutor(filter,selector);
+		selector = new FieldFilterRelationSelectExcutor(filter,selector);
+		return selector.select(sc);
 	}
 	
 	public <T> List<T> query(Class<T> t, FieldFilter filter, Condation cnd) {
 		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
-		SelectExcutor select = new FieldFilterSelectExcutor(filter);
-		select = new FieldFilterRelationSelectExcutor(select, filter);
-		return select.select(sc);
+		SelectExcutor selector = new SelectExcutor();
+		selector = new FieldFilterSelectExcutor(filter,selector);
+		selector = new FieldFilterRelationSelectExcutor(filter,selector);
+		return selector.select(sc);
 	}
 	
 	public <T> List<T> query(Class<T> t, FieldFilter filter, Condation cnd,Page page) {
 		SelectContext sc = new SelectContext(t, daoConfig, daoMapper, cnd);
-		SelectExcutor select = new FieldFilterSelectExcutor(filter);
-		select = new FieldFilterRelationSelectExcutor(select, filter);
-		select = new PageSelectExcutor(select, page);
-		return select.select(sc);
+		SelectExcutor selector = new SelectExcutor();
+		selector = new FieldFilterSelectExcutor(filter,selector);
+		selector = new FieldFilterRelationSelectExcutor(filter,selector);
+		selector = new PageSelectExcutor(selector, page);
+		return selector.select(sc);
 	}
 
 }

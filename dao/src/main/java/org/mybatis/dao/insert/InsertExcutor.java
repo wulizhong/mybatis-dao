@@ -2,6 +2,7 @@ package org.mybatis.dao.insert;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class InsertExcutor {
 		Class<?> targetType = Toolkit.isCglibProxy(target) ? target.getClass().getSuperclass() : target.getClass();
 		Table table = TableMap.getInstance().getTableMap(targetType);
 		SQL sql = new SQL();
-		sql = sql.INSERT_INTO(table.getName());
+		sql = sql.INSERT_INTO(getTableName(context));
 		HashMap<String, Object> paramter = new HashMap<>();
 		for (String fieldStr : table.getDataBaseFieldMap().values()) {
 			Field field = table.getField(fieldStr);
@@ -53,12 +54,16 @@ public class InsertExcutor {
 			Field idField = id.getField();
 			Object resultId =  result.get("id");
 			if (resultId != null) {
-//				Class<?> type = (Class<?>) idField.getGenericType();
-//				if (type == int.class || type == Integer.class) {
-//					ReflectionUtils.setValue(target, idField, resultId.intValue());
-//				} else if (type == long.class || type == Long.class) {
-					ReflectionUtils.setValue(target, idField, resultId);
-//				}
+				Class<?> type = (Class<?>) idField.getGenericType();
+				if (type == int.class || type == Integer.class) {
+					ReflectionUtils.setValue(target, idField, Integer.parseInt(resultId.toString()));
+				} else if (type == long.class || type == Long.class) {
+					ReflectionUtils.setValue(target, idField, Long.parseLong(resultId.toString()));
+				} else if(type == BigDecimal.class){
+					ReflectionUtils.setValue(target, idField, new BigDecimal(resultId.toString()));
+				} else if(type == BigInteger.class){
+					ReflectionUtils.setValue(target, idField, new BigInteger(resultId.toString()));
+				}
 			}
 			
 			if (result.get("count") != null) {
@@ -104,5 +109,12 @@ public class InsertExcutor {
 		}
 		
 		return count;
+	}
+	
+	protected String getTableName(InsertContext context) {
+		Object target = context.getTarget();
+		Class<?> targetType = Toolkit.isCglibProxy(target) ? target.getClass().getSuperclass() : target.getClass();
+		Table table = TableMap.getInstance().getTableMap(targetType);
+		return table.getName();
 	}
 }

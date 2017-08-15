@@ -37,6 +37,17 @@ public class UserController {
 		dao.update(b,FieldFilter.exclude("title","content"));
 		return b;
 	}
+	
+	@RequestMapping("/updateBlogDynamicTableName")
+	public Blog updateBlogDynamicTableName() {
+
+		Blog b = dao.selectOne(Blog.class,"blog_2", 1);
+		b.setContent("修改之后的内容3!");
+		b.setTitle("修改测试");
+//		b.setAuthorId(5);
+		dao.update(b,"blog_2",FieldFilter.exclude("title","content"));
+		return b;
+	}
 
 	@RequestMapping("/selectBlogs")
 	public List<Blog> selectBlogs() {
@@ -65,6 +76,16 @@ public class UserController {
 		System.out.println("getBlogs");
 		b.getAuthor();
 		blogs.add(b);
+
+		return blogs;
+	}
+	
+	@RequestMapping("/getBlogsDynamicTableName")
+	public List<Blog> getBlogsDynamicTableName() {
+
+		List<Blog> blogs = dao.selectList(Blog.class, "blog_2", FieldFilter.include("title"));
+//		Blog b = dao.selectOne(Blog.class,"blog_2", 1);
+//		blogs.add(b);
 
 		return blogs;
 	}
@@ -97,6 +118,21 @@ public class UserController {
 		author.setName("插入测试");
 		b.setAuthor(author);
 		int count = dao.save(b);
+
+		System.out.println("插入数据条数:" + count);
+
+		return b;
+	}
+	
+	@RequestMapping("/insertBlog")
+	public Blog insertBlog() {
+
+		Blog b = new Blog();
+
+		b.setTitle("插入测试");
+
+		
+		int count = dao.insert(b, "blog_2");
 
 		System.out.println("插入数据条数:" + count);
 

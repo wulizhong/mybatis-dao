@@ -33,7 +33,7 @@ public class FieldFilterRelationSelectExcutor extends SelectExcutor {
 
 	private FieldFilter filter;
 
-	public FieldFilterRelationSelectExcutor(SelectExcutor select, FieldFilter filter) {
+	public FieldFilterRelationSelectExcutor( FieldFilter filter,SelectExcutor select) {
 		this.selectExcutor = select;
 		this.filter = filter;
 	}

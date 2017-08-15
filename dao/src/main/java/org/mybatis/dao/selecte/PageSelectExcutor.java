@@ -35,7 +35,7 @@ public class PageSelectExcutor extends SelectExcutor {
 			sqlBuilder.append("select ");
 			sqlBuilder.append(table.getId().getId());
 			sqlBuilder.append(" from ");
-			sqlBuilder.append(table.getName());
+			sqlBuilder.append(getTableName(context));
 			if (cnd != null)
 				sqlBuilder.append(cnd.toSql(context.getType(), paramter));
 			page.setDaoMapper(context.getDaoMapper());
@@ -50,7 +50,7 @@ public class PageSelectExcutor extends SelectExcutor {
 			sqlBuilder.append("select ");
 			sqlBuilder.append(table.getId().getId());
 			sqlBuilder.append(" from ");
-			sqlBuilder.append(table.getName());
+			sqlBuilder.append(getTableName(context));
 			if (cnd != null)
 				sqlBuilder.append(cnd.toSql(context.getType(), paramter));
 			page.setDaoMapper(context.getDaoMapper());
@@ -61,5 +61,11 @@ public class PageSelectExcutor extends SelectExcutor {
 		}
 		context.setCondation(new Limit(context.getCondation(), context.getDaoConfig().getDataBase(), (page.getPageNumber()*page.getPageSize()), (page.getPageNumber()*page.getPageSize())+page.getPageSize()));
 		return selectExcutor.select(context);
+	}
+	
+	@Override
+	protected String getTableName(SelectContext context) {
+		// TODO Auto-generated method stub
+		return selectExcutor.getTableName(context);
 	}
 }
