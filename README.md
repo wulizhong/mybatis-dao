@@ -61,7 +61,7 @@ public class Blog {
 省略建表过程
 ### 创建UserConroller
 
-```
+```java
 @RestController
 public class UserController {
 
@@ -70,7 +70,7 @@ public class UserController {
 }
 ```
 ### 增加
-```
+```java
 @RequestMapping("/insertBlog")
 public Blog insertBlog() {
 
@@ -92,7 +92,7 @@ public Blog insertBlog() {
 }
 ```
 ### 查询单个对象
-```
+```java
 @RequestMapping("/getBlog")
 public Blog getBlog() {
 
@@ -135,7 +135,7 @@ public Blog getBlog() {
 ```
 ### 查询多条记录
 
-```
+```java
 @RequestMapping("/getBlogs")
 public List<Blog> getBlogs(){
         //查询 title中包含abc字符并且id大于5的记录，按照title排序，第2页的每页10条的数据，会查询关联对象
@@ -150,7 +150,7 @@ public List<Blog> getBlogs(){
 ```
 
 ### 修改
-```
+```java
 @RequestMapping("/updateBlog")
 public Blog updateBlog() {
 
@@ -173,7 +173,7 @@ public Blog updateBlog() {
 ```
 
 ### 删除
-```
+```java
 @RequestMapping("/deleteBlog")
 public void deleteBlog() {
 		
