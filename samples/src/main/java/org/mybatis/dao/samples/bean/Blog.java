@@ -1,6 +1,7 @@
 package org.mybatis.dao.samples.bean;
 
 import org.mybatis.dao.FetchType;
+import org.mybatis.dao.annotation.Id;
 import org.mybatis.dao.annotation.One;
 import org.mybatis.dao.annotation.Table;
 
@@ -13,6 +14,7 @@ import org.mybatis.dao.annotation.Table;
 @Table
 public class Blog {
 
+	@Id
 	private int id;
 	
 	private String title;
