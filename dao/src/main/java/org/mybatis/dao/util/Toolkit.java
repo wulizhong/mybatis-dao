@@ -5,7 +5,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +29,7 @@ public class Toolkit {
 
 		return t == String.class || t == Long.class || t == long.class || t == Integer.class || t == int.class || t == Short.class || t == short.class
 				|| t == Byte.class || t == byte.class || t == char.class || t == StringBuilder.class || t == StringBuffer.class || t == BigInteger.class
-				|| t == BigDecimal.class || t == Date.class || t == Double.class || t == double.class || t == Float.class || t == float.class;
+				|| t == BigDecimal.class || t == java.sql.Date.class|| t == java.util.Date.class || t == Double.class || t == double.class || t == Float.class || t == float.class;
 
 	}
 
