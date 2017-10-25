@@ -38,7 +38,9 @@ public class Where implements Condation{
 		builder.append(" where ");
 		Table table = tableMap.getTableMap(clazz);
 		builder.append(table.getDataBaseField(name));
+		builder.append(" ");
 		builder.append(op);
+		builder.append(" ");
 		builder.append("#{");
 		builder.append(name);
 		builder.append("}");

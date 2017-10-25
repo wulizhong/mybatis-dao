@@ -35,7 +35,9 @@ public class Or implements Condation {
 		builder.append(condation.toSql(clazz,paramter));
 		builder.append(" or ");
 		builder.append(TableMap.getInstance().getTableMap(clazz).getDataBaseField(name));
+		builder.append(" ");
 		builder.append(op);
+		builder.append(" ");
 		builder.append("#{");
 		builder.append(name);
 		builder.append("}");
