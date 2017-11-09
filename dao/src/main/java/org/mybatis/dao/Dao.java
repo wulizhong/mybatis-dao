@@ -8,6 +8,7 @@ import org.mybatis.dao.delete.DeleteContext;
 import org.mybatis.dao.delete.DeleteExcutor;
 import org.mybatis.dao.delete.DynamicTableNameDeleteExcutor;
 import org.mybatis.dao.exception.IdIsNullException;
+import org.mybatis.dao.exception.SizeNotEqualException;
 import org.mybatis.dao.insert.DynamicTableNameInsertExcutor;
 import org.mybatis.dao.insert.InsertContext;
 import org.mybatis.dao.insert.InsertExcutor;
@@ -21,6 +22,8 @@ import org.mybatis.dao.selecte.PageSelectExcutor;
 import org.mybatis.dao.selecte.RelationSelectExcutor;
 import org.mybatis.dao.selecte.SelectContext;
 import org.mybatis.dao.selecte.SelectExcutor;
+import org.mybatis.dao.update.CondationUpdateExcutor;
+import org.mybatis.dao.update.DynamicTableNameCondationUpdateExcutor;
 import org.mybatis.dao.update.DynamicTableNameUpdateExcutor;
 import org.mybatis.dao.update.FieldFilterUpdateExcutor;
 import org.mybatis.dao.update.UpdateContext;
@@ -146,6 +149,40 @@ public class Dao {
 		updateExcutor = new FieldFilterUpdateExcutor(filter,updateExcutor);
 		return updateExcutor.update(updateContext);
 
+	}
+	
+	public int update(Class<?> clazz,String dynamicTableName,String[] fields,Object[] values,Condation cnd){
+		if(fields == null||values == null){
+			throw new NullPointerException("fields or values is null");
+		}
+		if(fields.length!=values.length){
+			throw new SizeNotEqualException("fields length not equal values length");
+		}
+		UpdateContext updateContext = new UpdateContext(null, daoConfig, daoMapper);
+		updateContext.setCondation(cnd);
+		UpdateExcutor updateExcutor = new DynamicTableNameCondationUpdateExcutor(clazz,dynamicTableName, fields, values);
+		return updateExcutor.update(updateContext);
+	}
+	
+	public int update(Class<?> clazz,String dynamicTableName,String field,Object value,Condation cnd){
+		return update(clazz,dynamicTableName,new String[]{field},new Object[]{value},cnd);
+	}
+	
+	public int update(Class<?> clazz,String[] fields,Object[] values,Condation cnd){
+		if(fields == null||values == null){
+			throw new NullPointerException("fields or values is null");
+		}
+		if(fields.length!=values.length){
+			throw new SizeNotEqualException("fields length not equal values length");
+		}
+		UpdateContext updateContext = new UpdateContext(null, daoConfig, daoMapper);
+		updateContext.setCondation(cnd);
+		UpdateExcutor updateExcutor = new CondationUpdateExcutor(clazz, fields, values);
+		return updateExcutor.update(updateContext);
+	}
+	
+	public int update(Class<?> clazz,String field,Object value,Condation cnd){
+		return update(clazz,new String[]{field},new Object[]{value},cnd);
 	}
 
 	public <T> int delete(T t,String dynamicTableName) {
