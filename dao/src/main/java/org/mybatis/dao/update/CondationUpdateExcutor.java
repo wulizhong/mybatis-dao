@@ -35,11 +35,11 @@ public class CondationUpdateExcutor extends UpdateExcutor{
 		SQL sql = new SQL();
 		sql.UPDATE(getTableName(context));
 		HashMap<String, Object> paramter = new HashMap<>();
+		Table table = TableMap.getInstance().getTableMap(clazz);
 		for (int i = 0;i<fields.length;i++) {
-			
-			
-			sql = sql.SET(fields[i]+ " = #{" + fields[i] + "}");
-			paramter.put(fields[i], values[i]);
+			String fieldName = table.getDataBaseField(fields[i]);
+			sql = sql.SET(fieldName+ " = #{" + fields[i] + i + "}");
+			paramter.put(fields[i] + i, values[i]);
 		}
 		paramter.put(Constant.SQL_SYMBOL, sql.toString()+context.getCondation().toSql(clazz, paramter));
 		
