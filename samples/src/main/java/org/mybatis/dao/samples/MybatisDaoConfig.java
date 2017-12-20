@@ -6,6 +6,7 @@ import org.mybatis.dao.DaoConfig;
 import org.mybatis.dao.DaoPlugin;
 import org.mybatis.dao.DataBase;
 import org.mybatis.dao.mapper.DaoMapper;
+import org.mybatis.dao.plugin.page.PagePlugin;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +19,7 @@ import org.springframework.context.annotation.Primary;
  * 类说明 
  */
 @Configuration
-@MapperScan("org.mybatis.dao.mapper")
+@MapperScan({"org.mybatis.dao.mapper","org.mybatis.dao.samples"})
 public class MybatisDaoConfig {
 	
 	@Bean(name = "dao")
@@ -38,6 +39,6 @@ public class MybatisDaoConfig {
 	@Bean(name = "interceptors")
 	@Primary
 	public Interceptor[] interceptors(){
-		return new Interceptor[]{new DaoPlugin()};
+		return new Interceptor[]{new DaoPlugin(),new PagePlugin()};
 	}
 }

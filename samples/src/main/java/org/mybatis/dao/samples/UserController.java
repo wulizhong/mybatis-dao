@@ -6,6 +6,9 @@ import java.util.List;
 import org.mybatis.dao.Dao;
 import org.mybatis.dao.FieldFilter;
 import org.mybatis.dao.condation.Cnd;
+import org.mybatis.dao.plugin.page.PageData;
+import org.mybatis.dao.plugin.page.PageHelper;
+import org.mybatis.dao.plugin.page.Select;
 import org.mybatis.dao.samples.bean.Author;
 import org.mybatis.dao.samples.bean.Blog;
 import org.mybatis.dao.samples.bean.Course;
@@ -27,24 +30,47 @@ public class UserController {
 	@Autowired
 	private Dao dao;
 
+	@Autowired
+	private BlogDao blogDao;
+	
 	@RequestMapping("/updateBlog")
-	public Blog updateBlog() {
+	public List<Blog> updateBlog() {
 
-		Blog b = dao.find(Blog.class, 5);
-		b.setContent("修改之后的内容3!");
-		b.setTitle("修改测试");
+//		PageData<Blog> pd = PageHelper.select(new Select() {
+//			
+//			@Override
+//			public void doSelect() {
+//				// TODO Auto-generated method stub
+//				blogDao.getBlog();
+//			}
+//		}, 1, 5);
+//		System.out.println(pd.getTotalCount());
+		PageData<Blog> pd2 = PageHelper.select(new Select() {
+			
+			@Override
+			public void doSelect() {
+				// TODO Auto-generated method stub
+				blogDao.getBlog();
+			}
+		}, 1, 5,true);
+		System.out.println(pd2.getTotalCount());
+		return pd2.getData();
 		
-		dao.update(b);
+//		Blog b = dao.find(Blog.class, 5);
+//		b.setContent("修改之后的内容3!");
+//		b.setTitle("修改测试");
 		
-		dao.update(b,FieldFilter.exclude("title","content"));
+//		dao.update(b);
+//		
+//		dao.update(b,FieldFilter.exclude("title","content"));
+//		
+//		b = dao.selectOne(Blog.class, "blog_2", 5);
+//		b.setContent("修改之后的内容3!");
+//		b.setTitle("修改测试");
+//		
+//		dao.update(b, "blog_2", FieldFilter.exclude("title","content"));
 		
-		b = dao.selectOne(Blog.class, "blog_2", 5);
-		b.setContent("修改之后的内容3!");
-		b.setTitle("修改测试");
-		
-		dao.update(b, "blog_2", FieldFilter.exclude("title","content"));
-		
-		return b;
+//		return b;
 	}
 	
 	@RequestMapping("/getBlog")

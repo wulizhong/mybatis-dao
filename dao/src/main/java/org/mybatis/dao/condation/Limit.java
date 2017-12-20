@@ -32,7 +32,8 @@ public class Limit implements Condation {
 		// TODO Auto-generated method stub
 		if (dataBase == DataBase.MYSQL) {
 			StringBuilder builder = new StringBuilder();
-			builder.append(condation.toSql(clazz, paramter));
+			if(condation!=null)
+				builder.append(condation.toSql(clazz, paramter));
 			builder.append(" limit ");
 			builder.append("#{start} , #{end} ");
 			paramter.put("start", start);
@@ -46,7 +47,8 @@ public class Limit implements Condation {
 			builder.append("FROM ( ");
 			builder.append(Constant.ORACLE_SQL_SYMBOL);
 			builder.append(" ");
-			builder.append(condation.toSql(clazz, paramter));
+			if(condation!=null)
+				builder.append(condation.toSql(clazz, paramter));
 			builder.append(" ) a ");
 			builder.append("WHERE ROWNUM <= #{end})");
 			builder.append("		 WHERE rn >= #{start}");
