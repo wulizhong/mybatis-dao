@@ -1,5 +1,6 @@
 package org.mybatis.dao.condation;
 
+import org.mybatis.dao.Condation;
 
 /** 
  * @author 作者 :吴立中
@@ -19,6 +20,14 @@ public class Cnd {
 	
 	public static Where where(String name,String op,Object value){
 		return new Where(name, op, value);
+	}
+	
+	public static Where where(RawSql rawSql){
+		return new Where(rawSql);
+	}
+	
+	public static Segment segment(Condation condation){
+		return new Segment(condation);
 	}
 	
 	public OrderBy orderBy(String name,String value){

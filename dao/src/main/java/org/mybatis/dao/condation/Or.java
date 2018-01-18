@@ -21,6 +21,15 @@ public class Or implements Condation {
 	
 	private Object value;
 	
+	private Segment segment;
+	
+	private RawSql rawSql;
+	
+	protected Or(Condation condation, RawSql rawSql) {
+		this.condation = condation;
+		this.rawSql = rawSql;
+	}
+	
 	protected Or(Condation condation,String name, String op, Object value) {
 		this.condation = condation;
 		this.name = name;
@@ -28,21 +37,46 @@ public class Or implements Condation {
 		this.value = value;
 	}
 
+	protected Or(Condation condation, Segment segment) {
+		this.condation = condation;
+		this.segment = segment;
+	}
+	
 	@Override
 	public String toSql(Class<?> clazz,Map<String,Object> paramter) {
 		// TODO Auto-generated method stub
-		StringBuilder builder = new StringBuilder();
-		builder.append(condation.toSql(clazz,paramter));
-		builder.append(" or ");
-		builder.append(TableMap.getInstance().getTableMap(clazz).getDataBaseField(name));
-		builder.append(" ");
-		builder.append(op);
-		builder.append(" ");
-		builder.append("#{");
-		builder.append(name);
-		builder.append("}");
-		paramter.put(name, value);
-		return builder.toString();
+		if (segment != null) {
+			StringBuilder builder = new StringBuilder();
+			builder.append(condation.toSql(clazz, paramter));
+			builder.append(" or (");
+			String sql = segment.toSql(clazz, paramter);
+			sql = sql.replace("where", "");
+			builder.append(sql);
+			builder.append(" ) ");
+
+			return builder.toString();
+		} else if(rawSql!=null){
+			StringBuilder builder = new StringBuilder();
+			builder.append(condation.toSql(clazz, paramter));
+			builder.append(" or ");
+			builder.append(rawSql.toSql(clazz, paramter));
+			return builder.toString();
+		} else {
+			int id = IdGrenerator.grenerateId();
+			StringBuilder builder = new StringBuilder();
+			builder.append(condation.toSql(clazz, paramter));
+			builder.append(" or ");
+			builder.append(TableMap.getInstance().getTableMap(clazz).getDataBaseField(name));
+			builder.append(" ");
+			builder.append(op);
+			builder.append(" ");
+			builder.append("#{");
+			builder.append(name+id);
+			builder.append("}");
+			paramter.put(name+id, value);
+
+			return builder.toString();
+		}
 	}
 	
 	public And and(String name,String op,Object value){
@@ -53,6 +87,26 @@ public class Or implements Condation {
 	public Or or(String name,String op,Object value){
 		Or or = new Or(this,name,op,value);
 		return or;
+	}
+	
+	public Or or(Segment segment){
+		Or or = new Or(this,segment);
+		return or;
+	}
+	
+	public Or or(RawSql rawSql){
+		Or or = new Or(this,rawSql);
+		return or;
+	}
+	
+	public And and(RawSql rawSql){
+		And and = new And(this,rawSql);
+		return and;
+	}
+	
+	public And and(Segment segment){
+		And and = new And(this,segment);
+		return and;
 	}
 	
 	public OrderBy orderBy(String name,String value){

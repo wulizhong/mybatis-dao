@@ -17,6 +17,9 @@ import org.mybatis.dao.database.Table;
 public class Where implements Condation{
 
 	
+
+	private RawSql rawSql;
+	
 	private String name;
 	
 	private String op;
@@ -30,21 +33,31 @@ public class Where implements Condation{
 		this.value = value;
 	}
 	
+	protected Where(RawSql rawSql){
+		this.rawSql = rawSql;
+	}
+	
 	@Override
 	public String toSql(Class<?> clazz,Map<String,Object> paramter) {
 		// TODO Auto-generated method stub
+		int id = IdGrenerator.grenerateId();
 		StringBuilder builder = new StringBuilder();
 		TableMap tableMap = TableMap.getInstance();
 		builder.append(" where ");
-		Table table = tableMap.getTableMap(clazz);
-		builder.append(table.getDataBaseField(name));
-		builder.append(" ");
-		builder.append(op);
-		builder.append(" ");
-		builder.append("#{");
-		builder.append(name);
-		builder.append("}");
-		paramter.put(name, value);
+		if(rawSql == null){
+			Table table = tableMap.getTableMap(clazz);
+			builder.append(table.getDataBaseField(name));
+			builder.append(" ");
+			builder.append(op);
+			builder.append(" ");
+			builder.append("#{");
+			builder.append(name+id);
+			builder.append("}");
+			paramter.put(name+id, value);
+		}else{
+			builder.append(this.rawSql.toSql(clazz, paramter));
+		}
+		
 
 		
 		return builder.toString();
@@ -55,9 +68,31 @@ public class Where implements Condation{
 		return and;
 	}
 	
+	
+	
+	public And and(Segment segment){
+		And and = new And(this,segment);
+		return and;
+	}
+	
 	public Or or(String name,String op,Object value){
 		Or or = new Or(this,name,op,value);
 		return or;
+	}
+	
+	public Or or(Segment segment){
+		Or or = new Or(this,segment);
+		return or;
+	}
+	
+	public Or or(RawSql rawSql){
+		Or or = new Or(this,rawSql);
+		return or;
+	}
+	
+	public And and(RawSql rawSql){
+		And and = new And(this,rawSql);
+		return and;
 	}
 	
 	public OrderBy orderBy(String name,String value){

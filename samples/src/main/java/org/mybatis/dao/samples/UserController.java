@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 
  */
 @RestController
+@RequestMapping("/user")
 public class UserController {
 
 	@Autowired
@@ -71,6 +72,12 @@ public class UserController {
 //		dao.update(b, "blog_2", FieldFilter.exclude("title","content"));
 		
 //		return b;
+	}
+	
+	@RequestMapping("/getBlog2")
+	public List<Blog> getBlog2() {
+		List<Blog> blogs = dao.selectList(Blog.class, Cnd.where("id", ">", 0).and(Cnd.segment(Cnd.where("id", "<", 2).or("id", ">", 1))));
+		return blogs;
 	}
 	
 	@RequestMapping("/getBlog")

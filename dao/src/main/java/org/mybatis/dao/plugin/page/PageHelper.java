@@ -21,6 +21,10 @@ public class PageHelper {
 		return select(select,start,size,false);
 	}
 	
+	public static <T> PageData<T> selectWithCount(Select select,int start,int size){	
+		return select(select,start,size,true);
+	}
+	
 	protected static ThreadLocal<PageData<?>> getThreadLocal() {
 		return local;
 	}
